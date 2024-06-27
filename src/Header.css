@@ -1,0 +1,30 @@
+.header {
+  background-color: #362e14;
+  padding: 10px;
+  color: white;
+  margin-left: 220px;
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;  
+}
+.header .welcome-message {
+  font-size: 16px;
+} 
+
+.config-icon {
+  width: 40px;
+  cursor: pointer;
+}
+
+.logout-icon {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+.logout-icon:hover {
+  opacity: 0.8;
+}
+.logout-link {
+  display: flex;
+  align-items: center;
+}

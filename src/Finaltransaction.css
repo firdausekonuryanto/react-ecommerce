@@ -1,0 +1,38 @@
+.final_transaction{
+  padding: 20px;
+  margin-left: 220px;
+}
+
+.kode_pembayaran {
+  background-color: blue;
+  color: white;
+  margin: 0 auto 0 auto;
+  width: 300px;
+  padding: 10px;
+}
+
+/* src/Alert.css */
+.alert-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: yellow;
+  color: black;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.alert-content {
+  display: flex;
+  align-items: center;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  margin-left: 10px;
+  cursor: pointer;
+}

@@ -1,0 +1,72 @@
+.products_page{
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 20px;
+    margin-left: 220px;
+    overflow: hidden; /* Hide any overflowing content */
+}
+
+.form_input, .list_products{
+    background-color: rgb(239, 236, 236);
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+}
+
+.table thead{
+    font-weight: bold;
+    --bs-table-bg:black;
+    --bs-table-color:white;
+}
+
+.search_product_table{
+    width: 300px;
+    margin-bottom: 5px;
+}
+
+.list_products legend {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #000000; /* Bootstrap primary color */
+    border-bottom: 2px solid #007bff; /* Bootstrap primary color */
+    padding-bottom: 10px;
+}
+.list_products button{
+    margin-bottom: 5px;
+    margin-right: 1px;
+    margin-left: 1px;
+}
+
+.form_input legend {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #000000; /* Bootstrap primary color */
+    border-bottom: 2px solid #007bff; /* Bootstrap primary color */
+    padding-bottom: 10px;
+}
+.scroll-to-top {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    padding: 10px;
+    background-color: #ffdd00;
+    color: rgb(0, 0, 0);
+    border: none;
+    border-radius: 100%;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.scroll-to-top:hover {
+    background-color: #0056b3;
+}
+
+.list_products{
+    overflow: scroll;
+}
+
+td{
+    white-space: nowrap;
+}

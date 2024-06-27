@@ -1,0 +1,44 @@
+/* src/SideMenu.css */
+.side-menu {
+  width: 220px;
+  background-color: #1f1c1c;
+  padding: 15px;
+  position: fixed;
+  height: 100%;
+}
+
+.side-menu span {
+  color: gold;
+  font-weight: bold;
+}
+
+.side-menu hr {
+  border-color: #444;
+}
+
+.side-menu ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.side-menu li {
+  margin: 10px 0;
+}
+
+.side-menu a {
+  text-decoration: none;
+  color: white;
+}
+
+.side-menu a:hover {
+  color: gold;
+}
+
+.submenu {
+  margin-left: 20px; /* Adjust according to your design */
+  padding-left: 10px; /* Adjust according to your design */
+}
+
+.submenu li {
+  margin-top: 5px; /* Adjust spacing between submenu items */
+}
