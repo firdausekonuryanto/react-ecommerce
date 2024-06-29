@@ -87,7 +87,8 @@ const handleChange = (e) => {
   }, [currentSlide]);
 
   const fetchProducts = useCallback(() => {
-    axios.get('http://localhost:5000/api/product', {
+    alert(`${process.env.REACT_APP_API_URL}api/product`);
+    axios.get(`${process.env.REACT_APP_API_URL}api/product`, {
       params: { page: currentPage, limit: 10 }
     })
       .then(response => {
@@ -250,7 +251,7 @@ const handleChange = (e) => {
   </div>
     <div className="container">
       <div className="banner">
-        <h2>Welcome to Sunratu Shop!</h2>
+        <h2>Welcome to Sunratu Shop! </h2>
         <p style={{letterSpacing:'2px'}}>Find the perfect pair of what your looking for.</p>
         <div className="input-group mb-3">
           <input type="text" className="form-control custom-input form-control_search" placeholder="Type in your search keyword" aria-label="Type in your search keyword" aria-describedby="button-addon2" value={searchQuery}
