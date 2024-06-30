@@ -87,7 +87,6 @@ const handleChange = (e) => {
   }, [currentSlide]);
 
   const fetchProducts = useCallback(() => {
-    alert(`${process.env.REACT_APP_API_URL}api/product`);
     axios.get(`${process.env.REACT_APP_API_URL}api/product`, {
       params: { page: currentPage, limit: 10 }
     })

@@ -24,7 +24,8 @@ function App() {
       {location.pathname !== '/login' || location.pathname !== '/outside' && <SideMenu />}
       <div className="main-content">
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* <Route path="/" element={<Home />} /> */}
+          <Route path="/" element={<Outside />} />
           <Route path="/services" element={<Services />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
