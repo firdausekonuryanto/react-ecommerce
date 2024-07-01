@@ -1,6 +1,7 @@
 const amqp = require('amqplib/callback_api');
 // Connect to RabbitMQ server
-amqp.connect('amqp://localhost', (error0, connection) => {
+// amqp.connect('amqp://localhost', (error0, connection) => {
+amqp.connect('amqp://192.168.1.10', (error0, connection) => {
     if (error0) {
         throw error0;
     }
