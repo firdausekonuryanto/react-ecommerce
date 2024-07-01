@@ -291,7 +291,7 @@ const handleChange = (e) => {
         <div className="product-list">
           {products.map((product, index) => (
             <div className="product" key={index} onClick={() => handleAddToCart(product)}>
-              <img src={`http://localhost:5000/public/image_product/${product.imageName}`} alt={product.name} style={{ width: '100px', height: 'auto' }} />
+              <img src={`${process.env.REACT_APP_API_URL}public/image_product/${product.imageName}`} alt={product.name} style={{ width: '100px', height: 'auto' }} />
               <hr />
               <h5>{product.name}</h5>
               <p className='price'>${product.price.toFixed(2)}</p>
@@ -317,7 +317,7 @@ const handleChange = (e) => {
         <div className="product-list">
           {products.map((product, index) => (
             <div className="product" key={index} onClick={() => handleAddToCart(product)}>
-              <img src={`http://localhost:5000/public/image_product/${product.imageName}`} alt={product.name} style={{ width: '100px', height: 'auto' }} />
+              <img src={`${process.env.REACT_APP_API_URL}public/image_product/${product.imageName}`} alt={product.name} style={{ width: '100px', height: 'auto' }} />
               <hr />
               <h5>{product.name}</h5>
               <p className='price'>${product.price.toFixed(2)}</p>
