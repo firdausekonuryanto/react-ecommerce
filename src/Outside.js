@@ -90,7 +90,7 @@ const handleChange = (e) => {
       .then(response => {
         console.log(response.data.messages);
       })
-      .catch(error => console.error('Error fetching products:', error));
+      .catch(error => console.error('Error fetching fetchConsume:', error));
 }, []);
 
 useEffect(() => {

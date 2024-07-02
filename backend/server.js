@@ -5,7 +5,7 @@ const path = require("path");
 const { MongoClient } = require("mongodb");
 const ObjectID = require("mongodb").ObjectId;
 const cors = require('cors');
-const consumer = require('./consumer');
+const { getMessages } = require('./consumer');
 
 const app = express();
 const port = 5000;
