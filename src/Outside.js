@@ -8,8 +8,6 @@ import ModalComponent from './ModalComponent';
 // import { Button } from 'react-bootstrap';
 import { Modal, Button } from 'react-bootstrap';
 
-
-
 function Outside() {
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,14 +16,11 @@ function Outside() {
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
-
   const [show, setShow] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-
   const handleCloseLogin = () => setShowLogin(false);
   const handleShowLogin = () => setShowLogin(true);
-
   const handleCloseRegister = () => setShowRegister(false);
   const handleShowRegister = () => setShowRegister(true);
 
@@ -51,6 +46,10 @@ const handleChange = (e) => {
   useEffect(() => {
     fetchProducts();
   }, [currentPage]);
+
+  useEffect(() => {
+    fetchConsume();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('cartProducts', JSON.stringify(cartProducts)); // Save to localStorage whenever cart changes
@@ -85,6 +84,18 @@ const handleChange = (e) => {
       clearInterval(intervalId);
     };
   }, [currentSlide]);
+
+  const fetchConsume = useCallback(() => {
+    axios.get(`${process.env.REACT_APP_API_URL}/api/consume`)
+      .then(response => {
+        console.log(response.data.messages);
+      })
+      .catch(error => console.error('Error fetching products:', error));
+}, []);
+
+useEffect(() => {
+  fetchConsume();
+}, [fetchConsume]);
 
   const fetchProducts = useCallback(() => {
     axios.get(`${process.env.REACT_APP_API_URL}api/product`, {
