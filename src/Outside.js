@@ -86,7 +86,7 @@ const handleChange = (e) => {
   }, [currentSlide]);
 
   const fetchConsume = useCallback(() => {
-    axios.get(`${process.env.REACT_APP_API_URL}/api/consume`)
+    axios.get(`${process.env.REACT_APP_API_URL}api/consume`)
       .then(response => {
         console.log(response.data.messages);
       })
