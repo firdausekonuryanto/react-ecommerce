@@ -5,6 +5,7 @@ const path = require("path");
 const { MongoClient } = require("mongodb");
 const ObjectID = require("mongodb").ObjectId;
 const cors = require('cors');
+const consumer = require('./consumer');
 
 const app = express();
 const port = 5000;
@@ -22,7 +23,7 @@ const corsOptions = {
 
 // Apply CORS to all routes
 app.use(cors(corsOptions));
-
+ 
 // Ensure the directory exists
 const fs = require('fs');
 const imageDir = path.join(__dirname, 'public/image_product');
@@ -60,6 +61,10 @@ const connectToMongoDB = async () => {
         throw error;
     }
 };
+
+app.get('/api/consume', (req, res) => {
+    res.json({ messages: getMessages() });
+});
 
 // Get all products
 app.get('/api/product', async (req, res) => {
