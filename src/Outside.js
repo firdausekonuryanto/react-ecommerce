@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef  } from 'react';
 import axios from 'axios';
 import debounce from 'lodash.debounce';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Outside.css';
 import ModalComponent from './ModalComponent';
-// import { Button } from 'react-bootstrap';
 import { Modal, Button } from 'react-bootstrap';
 
 function Outside() {
@@ -19,6 +18,9 @@ function Outside() {
   const [show, setShow] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const [data, setData] = useState({ testing: '', messages: [] });
+  const audioRef = useRef(null); 
+
   const handleCloseLogin = () => setShowLogin(false);
   const handleShowLogin = () => setShowLogin(true);
   const handleCloseRegister = () => setShowRegister(false);
@@ -47,12 +49,9 @@ const handleChange = (e) => {
     fetchProducts();
   }, [currentPage]);
 
-  useEffect(() => {
-    fetchConsume();
-  }, []);
 
   useEffect(() => {
-    localStorage.setItem('cartProducts', JSON.stringify(cartProducts)); // Save to localStorage whenever cart changes
+    localStorage.setItem('cartProducts', JSON.stringify(cartProducts));
   }, [cartProducts]);
 
   useEffect(() => {
@@ -64,7 +63,6 @@ const handleChange = (e) => {
         images[i].style.opacity = 0;
         images[i].style.transform = 'matrix(2, 0, 0, 2, 0, 0)';
       }
-
       images[slideIndex].style.opacity = 1;
       images[slideIndex].style.transform = 'matrix(1, 0, 0, 1, 0, 0)';
     };
@@ -84,19 +82,26 @@ const handleChange = (e) => {
       clearInterval(intervalId);
     };
   }, [currentSlide]);
+  
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:5001');
 
-  const fetchConsume = useCallback(() => {
-    axios.get(`${process.env.REACT_APP_API_URL}api/consume`)
-      .then(response => {
-        console.log(response.data.messages);
-      })
-      .catch(error => console.error('Error fetching fetchConsume:', error));
-}, []);
+    ws.onmessage = (event) => {
+      const newMessage = event.data;
+      setData((prevData) => ({
+        ...prevData,
+        messages: [...prevData.messages, newMessage],
+      }));
+      if (audioRef.current) {
+        audioRef.current.play();
+      }
+    };
 
-useEffect(() => {
-  fetchConsume();
-}, [fetchConsume]);
-
+    return () => {
+      ws.close();
+    };
+  }, []);
+  
   const fetchProducts = useCallback(() => {
     axios.get(`${process.env.REACT_APP_API_URL}api/product`, {
       params: { page: currentPage, limit: 10 }
@@ -109,12 +114,12 @@ useEffect(() => {
   }, [currentPage]);
 
   const searchProducts = useCallback(debounce((query) => {
-    axios.get('http://localhost:5000/api/product', {
+    axios.get(`${process.env.REACT_APP_API_URL}api/product`, {
       params: { q: query }
     })
       .then(response => setProducts(response.data.products))
       .catch(error => console.error('Error fetching products:', error));
-  }, 300), [currentPage]); // 300ms debounce
+  }, 300), [currentPage]);
 
   const handleSearch = (event) => {
     const query = event.target.value;
@@ -157,12 +162,27 @@ useEffect(() => {
     return total.toFixed(2);
   };
 
+  const handlePlaySound = () => {
+    if (audioRef.current) {
+      audioRef.current.play();
+    }
+  };
+
+  const handleMessage = (event) => {
+    handlePlaySound();
+  };
+
   const handleCheckout = () => {
-    navigate('/Finaltransaction'); // Redirect to checkout page
+    navigate('/Finaltransaction'); 
   }
 
   return (
     <div style={{marginBottom:'30px'}}>
+     <div>
+     <audio ref={audioRef} src={`${process.env.REACT_APP_API_URL}public/image_product/sound.mp3`} />
+     {/* <button onClick={handlePlaySound}>Play Sound</button> */}
+    </div>
+
       <div className='container-fluid header_outside' style={{display:'flex', width:'100%'}}>
           <div align='center' style={{width:'33%'}}>
           <svg
@@ -170,7 +190,7 @@ useEffect(() => {
           width="16"
           height="16"
           fill="currentColor"
-          class="bi bi-instagram"
+          className="bi bi-instagram"
           viewBox="0 0 16 16"
           style={{marginLeft: '50px'}}
         >
@@ -184,7 +204,7 @@ useEffect(() => {
           width="16"
           height="16"
           fill="currentColor"
-          class="bi bi-facebook"
+          className="bi bi-facebook"
           style={{marginLeft: '10px'}}
           viewBox="0 0 16 16"
         >
@@ -198,7 +218,7 @@ useEffect(() => {
           width="16"
           height="16"
           fill="currentColor"
-          class="bi bi-whatsapp"
+          className="bi bi-whatsapp"
           style={{marginLeft: '10px'}}
           viewBox="0 0 16 16"
         >
@@ -209,54 +229,61 @@ useEffect(() => {
           </div>
           <div align='center' style={{width:'33%'}}><span style={{fontSize:'14px', letterSpacing: '.1rem'}}><b>FREE SHIPPING WITH A MINIMUM PURCHASE OF 250K**</b></span></div>
           <div align='center' style={{width:'33%'}}>
-          <svg xmlns="http://www.w3.org/2000/svg" style={{marginRight:'5px'}} width="16" height="16" fill="currentColor" class="bi bi-person-fill-down" viewBox="0 0 16 16">
+          <svg xmlns="http://www.w3.org/2000/svg" style={{marginRight:'5px'}} width="16" height="16" fill="currentColor" className="bi bi-person-fill-down" viewBox="0 0 16 16">
   <path d="M12.5 9a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7m.354 5.854 1.5-1.5a.5.5 0 0 0-.708-.708l-.646.647V10.5a.5.5 0 0 0-1 0v2.793l-.646-.647a.5.5 0 0 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
   <path d="M2 13c0 1 1 1 1 1h5.256A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1 1.544-3.393Q8.844 9.002 8 9c-5 0-6 3-6 4"/>
 </svg> <span onClick={handleShowRegister}>Register</span> 
-<svg xmlns="http://www.w3.org/2000/svg" style={{marginRight:'5px', marginLeft:'10px'}} width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z"/>
-  <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+<svg xmlns="http://www.w3.org/2000/svg" style={{marginRight:'5px', marginLeft:'10px'}} width="16" height="16" fill="currentColor" className="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+  <path fillRule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z"/>
+  <path fillRule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
 </svg>
 <span onClick={handleShowLogin}>Login</span></div>
       </div>
       <div className='container-fluid second_header_outside' style={{display:'flex', width:'100%'}}>           
            
 <div className='container'>
-          <nav class="navbar navbar-expand-lg" style={{width:'100%', color:'white'}} >
-  <a class="navbar-brand" style={{color:'white', letterSpacing: '.1rem'}} href="#">Sunratu Shop</a>
-  <div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" href="#">Home</a>
+<div>
+      <h1>Consume Data</h1>
+      <p>{data.testing}</p>
+      <ul>
+        {data.messages.map((message, index) => (
+          <li key={index}>{message}</li>
+        ))}
+      </ul>
+    </div>
+          <nav className="navbar navbar-expand-lg" style={{width:'100%', color:'white'}} >
+  <a className="navbar-brand" style={{color:'white', letterSpacing: '.1rem'}} href="#">Sunratu Shop</a>
+  <div className="collapse navbar-collapse" id="navbarNav">
+    <ul className="navbar-nav">
+      <li className="nav-item">
+        <a className="nav-link" href="#">Home</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Most Popular</a>
+      <li className="nav-item">
+        <a className="nav-link" href="#">Most Popular</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Shoes</a>
+      <li className="nav-item">
+        <a className="nav-link" href="#">Shoes</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Shirts</a>
+      <li className="nav-item">
+        <a className="nav-link" href="#">Shirts</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Bag</a>
+      <li className="nav-item">
+        <a className="nav-link" href="#">Bag</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Contact | Customer Service</a>
+      <li className="nav-item">
+        <a className="nav-link" href="#">Contact | Customer Service</a>
       </li>
     </ul>
   </div>
 </nav>
 </div>
-
-
       </div>
-      <div class="slider">
-    <div class="images">
-      <img src="http://localhost:4200/assets/slider/slider_0.webp" />
-      <img src="http://localhost:4200/assets/slider/slider_1.webp" />
-      <img src="http://localhost:4200/assets/slider/slider_2.webp" />
-      <img src="http://localhost:4200/assets/slider/slider_3.webp" />
+      <div className="slider">
+    <div className="images">
+    <img src={`${process.env.REACT_APP_API_URL}public/slider/slider_0.webp`} />
+    <img src={`${process.env.REACT_APP_API_URL}public/slider/slider_1.webp`} />
+<img src={`${process.env.REACT_APP_API_URL}public/slider/slider_2.webp`} />
+<img src={`${process.env.REACT_APP_API_URL}public/slider/slider_3.webp`} />
     </div>
   </div>
     <div className="container">
@@ -286,7 +313,7 @@ useEffect(() => {
           ))}
         </div>
         <a href='' className=' link-underline link-underline-opacity-0' >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search-heart-fill" viewBox="0 0 16 16">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-search-heart-fill" viewBox="0 0 16 16">
             <path d="M6.5 13a6.47 6.47 0 0 0 3.845-1.258h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1A6.47 6.47 0 0 0 13 6.5 6.5 6.5 0 0 0 6.5 0a6.5 6.5 0 1 0 0 13m0-8.518c1.664-1.673 5.825 1.254 0 5.018-5.825-3.764-1.664-6.69 0-5.018"/>
           </svg>
           All SHoes Product
@@ -311,7 +338,7 @@ useEffect(() => {
           ))}
         </div>
         <a href='' className=' link-underline link-underline-opacity-0' >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search-heart-fill" viewBox="0 0 16 16">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-search-heart-fill" viewBox="0 0 16 16">
             <path d="M6.5 13a6.47 6.47 0 0 0 3.845-1.258h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1A6.47 6.47 0 0 0 13 6.5 6.5 6.5 0 0 0 6.5 0a6.5 6.5 0 1 0 0 13m0-8.518c1.664-1.673 5.825 1.254 0 5.018-5.825-3.764-1.664-6.69 0-5.018"/>
           </svg>
           All Shirts Product
@@ -337,7 +364,7 @@ useEffect(() => {
           ))}
         </div>
         <a href='' className=' link-underline link-underline-opacity-0' >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search-heart-fill" viewBox="0 0 16 16">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-search-heart-fill" viewBox="0 0 16 16">
             <path d="M6.5 13a6.47 6.47 0 0 0 3.845-1.258h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1A6.47 6.47 0 0 0 13 6.5 6.5 6.5 0 0 0 6.5 0a6.5 6.5 0 1 0 0 13m0-8.518c1.664-1.673 5.825 1.254 0 5.018-5.825-3.764-1.664-6.69 0-5.018"/>
           </svg>
           All Bag Product

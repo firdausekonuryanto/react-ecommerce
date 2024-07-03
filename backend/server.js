@@ -6,9 +6,48 @@ const { MongoClient } = require("mongodb");
 const ObjectID = require("mongodb").ObjectId;
 const cors = require('cors');
 const { getMessages } = require('./consumer');
+const WebSocket = require('ws');
 
 const app = express();
 const port = 5000;
+const wsPort = 5001; // WebSocket server port
+
+// WebSocket server
+const wss = new WebSocket.Server({ port: wsPort });
+
+wss.on('connection', ws => {
+    console.log('Client connected');
+    ws.on('close', () => console.log('Client disconnected'));
+});
+
+const notifyClients = (message) => {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
+        }
+    });
+};
+
+// RabbitMQ consumer
+const amqp = require('amqplib/callback_api');
+amqp.connect('amqp://localhost', (error0, connection) => {
+    if (error0) {
+        throw error0;
+    }
+    connection.createChannel((error1, channel) => {
+        if (error1) {
+            throw error1;
+        }
+        const queue = 'hello';
+        channel.assertQueue(queue, { durable: false });
+        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
+        channel.consume(queue, (msg) => {
+            const message = msg.content.toString();
+            console.log(" [x] Received %s", message);
+            notifyClients(message); // Notify WebSocket clients
+        }, { noAck: true });
+    });
+});
 
 app.use(bodyParser.json());
 app.use(cors()); // Enable CORS for all routes
@@ -63,7 +102,8 @@ const connectToMongoDB = async () => {
 };
 
 app.get('/api/consume', (req, res) => {
-    res.json({ messages: getMessages() });
+    var testing = "ini isi publisher : ";
+    res.json({ testing: testing, messages: getMessages() });
 });
 
 // Get all products
