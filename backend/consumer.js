@@ -34,7 +34,9 @@ const amqp = require('amqplib/callback_api');
 
 let messages = [];
 
-amqp.connect('amqp://localhost', (error0, connection) => {
+// amqp.connect('amqp://localhost', (error0, connection) => {
+    amqp.connect('amqp://192.168.1.9', (error0, connection) => {
+
     if (error0) {
         throw error0;
     }

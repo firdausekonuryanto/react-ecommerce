@@ -13,7 +13,8 @@ const port = 5000;
 const wsPort = 5001; // WebSocket server port
 
 // WebSocket server
-const wss = new WebSocket.Server({ port: wsPort });
+// const wss = new WebSocket.Server({ port: wsPort });
+const wss = new WebSocket.Server({ port: wsPort, host: '192.168.1.9' });
 
 wss.on('connection', ws => {
     console.log('Client connected');
