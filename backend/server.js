@@ -13,7 +13,6 @@ const port = 5000;
 const wsPort = 5001; // WebSocket server port
 
 // WebSocket server
-// const wss = new WebSocket.Server({ port: wsPort });
 const wss = new WebSocket.Server({ port: wsPort, host: '192.168.1.9' });
 
 const notifyClients = (message) => {
@@ -26,7 +25,7 @@ const notifyClients = (message) => {
 
 // RabbitMQ consumer
 const amqp = require('amqplib/callback_api');
-amqp.connect('amqp://localhost', (error0, connection) => {
+amqp.connect('amqp://192.168.1.9', (error0, connection) => {
     if (error0) {
         throw error0;
     }
@@ -54,7 +53,6 @@ app.use(bodyParser.json());
 app.use(cors()); // Enable CORS for all routes
 
 // CORS Configuration
-// origin: 'http://localhost:3000', // Replace with your frontend URL
 const corsOptions = {
     origin: '*', // Replace with your frontend URL
     methods: ['GET', 'POST', 'DELETE'], // Allowed HTTP methods
