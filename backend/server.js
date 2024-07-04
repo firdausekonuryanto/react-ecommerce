@@ -16,11 +16,6 @@ const wsPort = 5001; // WebSocket server port
 // const wss = new WebSocket.Server({ port: wsPort });
 const wss = new WebSocket.Server({ port: wsPort, host: '192.168.1.9' });
 
-wss.on('connection', ws => {
-    console.log('Client connected');
-    ws.on('close', () => console.log('Client disconnected'));
-});
-
 const notifyClients = (message) => {
     wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
@@ -48,6 +43,11 @@ amqp.connect('amqp://localhost', (error0, connection) => {
             notifyClients(message); // Notify WebSocket clients
         }, { noAck: true });
     });
+});
+
+wss.on('connection', ws => {
+    console.log('Client connected');
+    ws.on('close', () => console.log('Client disconnected'));
 });
 
 app.use(bodyParser.json());
