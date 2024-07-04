@@ -3,7 +3,7 @@ const amqp = require('amqplib/callback_api');
 let messages = [];
 const username = 'userx';
 const password = 'aka';
-const connectionString = `amqp://${username}:${password}@localhost`;
+const connectionString = `amqp://${username}:${password}@192.168.1.9`;
 
 amqp.connect(connectionString, (error0, connection) => {
     if (error0) {
