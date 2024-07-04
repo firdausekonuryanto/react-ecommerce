@@ -84,24 +84,37 @@ const handleChange = (e) => {
   }, [currentSlide]);
   
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:5001');
+    const username = 'userx';
+    const password = 'aka';
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'; // Adjust protocol based on your server setup
+    const wsUrl = `${wsProtocol}://${username}:${password}@your_rabbitmq_server_ip:5001`;
 
-    ws.onmessage = (event) => {
+    ws.current = new WebSocket(wsUrl);
+
+    ws.current.onopen = () => {
+      console.log('WebSocket connected');
+    };
+
+    ws.current.onmessage = (event) => {
       const newMessage = event.data;
-      setData((prevData) => ({
-        ...prevData,
-        messages: [...prevData.messages, newMessage],
-      }));
+      console.log('Received message:', newMessage);
+      // Handle incoming message as needed, e.g., update state
       if (audioRef.current) {
-        audioRef.current.play();
+        audioRef.current.play(); // Optional: Play notification sound
       }
     };
 
+    ws.current.onclose = () => {
+      console.log('WebSocket disconnected');
+    };
+
     return () => {
-      ws.close();
+      if (ws.current) {
+        ws.current.close();
+      }
     };
   }, []);
-  
+
   const fetchProducts = useCallback(() => {
     axios.get(`${process.env.REACT_APP_API_URL}api/product`, {
       params: { page: currentPage, limit: 10 }
