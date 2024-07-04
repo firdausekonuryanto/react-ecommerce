@@ -83,11 +83,13 @@ const handleChange = (e) => {
     };
   }, [currentSlide]);
   
+
+  // -------------------------------------------------------- socket -------------------------------------------------------------
   useEffect(() => {
     const username = 'userx';
     const password = 'aka';
     const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'; // Adjust protocol based on your server setup
-    const wsUrl = `${wsProtocol}://${username}:${password}@your_rabbitmq_server_ip:5001`;
+    const wsUrl = `${wsProtocol}://${username}:${password}@192.168.1.9:5001`;
 
     ws.current = new WebSocket(wsUrl);
 
@@ -114,6 +116,10 @@ const handleChange = (e) => {
       }
     };
   }, []);
+  // -------------------------------------------------------- end socket -------------------------------------------------------------
+
+
+
 
   const fetchProducts = useCallback(() => {
     axios.get(`${process.env.REACT_APP_API_URL}api/product`, {
