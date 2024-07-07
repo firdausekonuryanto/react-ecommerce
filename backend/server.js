@@ -5,27 +5,24 @@ const path = require("path");
 const { MongoClient } = require("mongodb");
 const ObjectID = require("mongodb").ObjectId;
 const cors = require('cors');
-const { getMessages } = require('./consumer');
+const amqp = require('amqplib/callback_api');
 const WebSocket = require('ws');
 
 const app = express();
 const port = 5000;
 const wsPort = 5001; // WebSocket server port
 
-// WebSocket server
-const wss = new WebSocket.Server({ port: wsPort, host: '192.168.1.9' });
-
-const notifyClients = (message) => {
-    wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(message);
-        }
+// ----------------------------------- start - websocket -----------------------------------
+const wss = new WebSocket.Server({ port: wsPort });
+wss.on('connection', (client) => {
+        console.log('');
+        console.log('WebSocket client connected');
+        client.on('message', (message) => {
+        console.log('Received message from client:', message);
     });
-};
+});
 
-// RabbitMQ consumer
-const amqp = require('amqplib/callback_api');
-amqp.connect('amqp://192.168.1.9', (error0, connection) => {
+amqp.connect('amqp://localhost', (error0, connection) => {
     if (error0) {
         throw error0;
     }
@@ -38,16 +35,18 @@ amqp.connect('amqp://192.168.1.9', (error0, connection) => {
         console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
         channel.consume(queue, (msg) => {
             const message = msg.content.toString();
-            console.log(" [x] Received %s", message);
-            notifyClients(message); // Notify WebSocket clients
+            console.log(" [x] Received dari server %s", message);
+            wss.clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(message);
+                }
+            });
         }, { noAck: true });
     });
 });
+// ----------------------------------- end - websocket -----------------------------------
 
-wss.on('connection', ws => {
-    console.log('Client connected');
-    ws.on('close', () => console.log('Client disconnected'));
-});
+
 
 app.use(bodyParser.json());
 app.use(cors()); // Enable CORS for all routes
@@ -99,11 +98,6 @@ const connectToMongoDB = async () => {
         throw error;
     }
 };
-
-app.get('/api/consume', (req, res) => {
-    var testing = "ini isi publisher : ";
-    res.json({ testing: testing, messages: getMessages() });
-});
 
 // Get all products
 app.get('/api/product', async (req, res) => {

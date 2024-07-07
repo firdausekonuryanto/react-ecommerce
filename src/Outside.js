@@ -6,6 +6,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Outside.css';
 import ModalComponent from './ModalComponent';
 import { Modal, Button } from 'react-bootstrap';
+import Alert from './Alert'; // Import the Alert component
+
 
 function Outside() {
   const [products, setProducts] = useState([]);
@@ -18,9 +20,6 @@ function Outside() {
   const [show, setShow] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const [data, setData] = useState({ testing: '', messages: [] });
-  const audioRef = useRef(null); 
-
   const handleCloseLogin = () => setShowLogin(false);
   const handleShowLogin = () => setShowLogin(true);
   const handleCloseRegister = () => setShowRegister(false);
@@ -39,6 +38,14 @@ function Outside() {
     phone: '',
 
 });
+
+// ------------------------------------ start - variabel for websocket and rabbitMQ ------------------------------------ 
+const ws = useRef(null);
+const [data, setData] = useState({ messages: [] });
+const [alertMessage, setAlertMessage] = useState("");
+const [showAlert, setShowAlert] = useState(false);
+const audioRef = useRef(null); 
+// ------------------------------------ end - variabel for websocket and rabbitMQ ------------------------------------ 
 
 const handleChange = (e) => {
   const { name, value } = e.target;
@@ -82,45 +89,51 @@ const handleChange = (e) => {
       clearInterval(intervalId);
     };
   }, [currentSlide]);
-  
-
-  // -------------------------------------------------------- socket -------------------------------------------------------------
+  // -------------------------------------------- start web socket -----------------------------------------------
   useEffect(() => {
-    const username = 'userx';
-    const password = 'aka';
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'; // Adjust protocol based on your server setup
-    const wsUrl = `${wsProtocol}://${username}:${password}@192.168.1.9:5001`;
+    // Create WebSocket connection
+    ws.current = new WebSocket('ws://192.168.1.7:5001');
 
-    ws.current = new WebSocket(wsUrl);
-
+    // WebSocket event handlers
     ws.current.onopen = () => {
-      console.log('WebSocket connected');
+      console.log('WebSocket Client Connected');
     };
 
     ws.current.onmessage = (event) => {
-      const newMessage = event.data;
-      console.log('Received message:', newMessage);
-      // Handle incoming message as needed, e.g., update state
-      if (audioRef.current) {
-        audioRef.current.play(); // Optional: Play notification sound
+      console.log("Received message from WebSocket server:", event.data);
+      const newMessage = event.data.toString(); // Convert Buffer to string
+      setData((prevData) => ({
+        ...prevData,
+        messages: [...prevData.messages, newMessage],
+      }));
+
+      // Check if audioRef is defined and user has interacted
+      if (audioRef.current && audioRef.current.paused) {
+        audioRef.current.play()
+          .catch(error => {
+            // Autoplay was prevented
+            console.error('Autoplay was prevented: ', error);
+          });
+        setAlertMessage(" "+newMessage);
+        setShowAlert(true);
+        setTimeout(() => setShowAlert(false), 3000);
       }
     };
 
     ws.current.onclose = () => {
-      console.log('WebSocket disconnected');
+      console.log('WebSocket Client Disconnected');
+      // Optionally handle reconnection here if needed
     };
 
+    // Clean up WebSocket connection on component unmount
     return () => {
       if (ws.current) {
         ws.current.close();
       }
     };
-  }, []);
-  // -------------------------------------------------------- end socket -------------------------------------------------------------
+  }, []); // Only run this effect on mount and unmount
 
-
-
-
+    // -------------------------------------------- end web socket -----------------------------------------------
   const fetchProducts = useCallback(() => {
     axios.get(`${process.env.REACT_APP_API_URL}api/product`, {
       params: { page: currentPage, limit: 10 }
@@ -133,7 +146,7 @@ const handleChange = (e) => {
   }, [currentPage]);
 
   const searchProducts = useCallback(debounce((query) => {
-    axios.get(`${process.env.REACT_APP_API_URL}api/product`, {
+    axios.get(`${process.env.REACT_APP_API_URL}api/p  roduct`, {
       params: { q: query }
     })
       .then(response => setProducts(response.data.products))
@@ -199,8 +212,10 @@ const handleChange = (e) => {
     <div style={{marginBottom:'30px'}}>
      <div>
      <audio ref={audioRef} src={`${process.env.REACT_APP_API_URL}public/image_product/sound.mp3`} />
-     {/* <button onClick={handlePlaySound}>Play Sound</button> */}
+     <button onClick={handlePlaySound}>Play Sound</button>
     </div>
+    <Alert message={alertMessage} show={showAlert} onClose={() => setShowAlert(false)} />
+
 
       <div className='container-fluid header_outside' style={{display:'flex', width:'100%'}}>
           <div align='center' style={{width:'33%'}}>

@@ -1,37 +1,46 @@
 const amqp = require('amqplib/callback_api');
+const WebSocket = require('ws');
+const queue = 'hello';
+const wsPort = 5001; // WebSocket server port
 
-// Connect to RabbitMQ server
-const username = 'userx';
-const password = 'aka';
-const connectionString = `amqp://${username}:${password}@192.168.1.9`;
+// WebSocket client setup
+const websocket = new WebSocket(`ws://localhost:${wsPort}`);
 
-amqp.connect(connectionString, (error0, connection) => {
-  if (error0) {
-    throw error0;
-  }
+// When WebSocket connection is established
+websocket.on('open', () => {
+    console.log('WebSocket Client Connected');
+});
 
-  // Create a channel
-  connection.createChannel((error1, channel) => {
-    if (error1) {
-      throw error1;
+// When WebSocket connection is closed
+websocket.on('close', () => {
+    console.log('WebSocket Client Disconnected');
+});
+
+amqp.connect('amqp://localhost', (error0, connection) => {
+    if (error0) {
+        throw error0;
     }
+    connection.createChannel((error1, channel) => {
+        if (error1) {
+            throw error1;
+        }
 
-    const queue = 'hello';
-    const msg = 'Hello World!';
+        channel.assertQueue(queue, {
+            durable: false
+        });
 
-    // Assert a queue into existence
-    channel.assertQueue(queue, {
-      durable: false
+        const msg = `Message sent from publisher.js at :  ${new Date().toLocaleTimeString()}`;
+        channel.sendToQueue(queue, Buffer.from(msg));
+
+        console.log(" [x] Sent '%s'", msg);
+        
+        websocket.send(msg);
+
+        // Close connection after sending the message
+        setTimeout(() => {
+            connection.close();
+            console.log(`Closed RabbitMQ connection after sending one message.`);
+            process.exit(0);
+        }, 500); // Wait for 500 milliseconds before closing (adjust as needed)
     });
-
-    // Send a message to the queue
-    channel.sendToQueue(queue, Buffer.from(msg));
-    console.log(" [x] Sent %s", msg);
-  });
-
-  // Close the connection and exit
-  setTimeout(() => {
-    connection.close();
-    process.exit(0);
-  }, 500);
 });
