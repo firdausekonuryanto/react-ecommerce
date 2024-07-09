@@ -92,7 +92,7 @@ const handleChange = (e) => {
   // -------------------------------------------- start web socket -----------------------------------------------
   useEffect(() => {
     // Create WebSocket connection
-    ws.current = new WebSocket('ws://192.168.1.7:5001');
+    ws.current = new WebSocket(`ws://${process.env.REACT_APP_WS_URL}`);
 
     // WebSocket event handlers
     ws.current.onopen = () => {
